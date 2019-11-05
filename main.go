@@ -24,7 +24,6 @@ func main() {
 	r := http.NewServeMux()
 
 	r.HandleFunc(pathPrefix, func(w http.ResponseWriter, r *http.Request) {
-		var size int64
 		id := strings.TrimPrefix(r.URL.Path, pathPrefix)
 
 		if id == "" {
@@ -36,26 +35,15 @@ func main() {
 			return
 		}
 
+		var size int64
+		size = 0
+
 		if s, err := folderSize(*flagRawPath + id); err == nil {
 			size += s
-		} else {
-			renderJSON(w, r, http.StatusInternalServerError, output{
-				"id":    id,
-				"size":  0,
-				"error": err.Error(),
-			})
-			return
 		}
 
 		if s, err := folderSize(*flagPublisedPath + id); err == nil {
 			size += s
-		} else {
-			renderJSON(w, r, http.StatusInternalServerError, output{
-				"id":    id,
-				"size":  0,
-				"error": err.Error(),
-			})
-			return
 		}
 
 		renderJSON(w, r, http.StatusOK, output{
